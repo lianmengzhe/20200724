@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>打字游戏</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+
+    .gamePage{
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        background: url("bg1.jpg") no-repeat center;
+    }
+
+    .card{
+        width: 200px;
+        height: 200px;
+        position: absolute;
+        top:  50px;
+        right: 100px;
+        display: flex;
+    }
+
+    .card > div{
+        width: 80px;
+        margin: 10px;
+        height: 120px;
+        box-shadow: 0 0 10px coral;
+        border-radius: 8px;
+    }
+
+    .card div .title{
+        width: 100%;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 24px;
+        text-align: center;
+        color: red;
+    }
+
+    .card div .records{
+        width: 100%;
+        height: 70px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 27px;
+        text-align: center;
+        color: orange;
+    }
+
+    .card div .lifes{
+        width: 100%;
+        height: 70px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 27px;
+        text-align: center;
+        color: orange;
+    }
+    .deadline{
+        width: 100%;
+        height: 50px;
+        background: coral;
+        position: absolute;
+        top: 500px;
+        z-index: 2;
+        opacity: .5;
+    }
+
+    .control{
+        position: absolute;
+        right: 110px;
+        top: 200px;
+        width: 80px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        border-radius: 10px;
+        background: orange;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .difficult{
+        position: absolute;
+        right: 210px;
+        top: 200px;
+        width: 80px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        border-radius: 10px;
+        background: orange;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .difficultCard{
+        width: 300px;
+        height: 200px;
+        display: flex;
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        background: #bac964;
+        border-radius: 5px;
+        flex-direction: column;
+        opacity: 0;
+        transition: opacity .3s;
+    }
+
+    .difficultCard div:hover{
+        color: #0779e4;
+    }
+
+    .difficultCard div{
+        width: 60%;
+        margin-left: 20%;
+        height: 40px;
+        line-height: 40px;
+        border-radius: 3px;
+        background: aliceblue;
+        color: orangered;
+        text-align: center;
+        margin-top: 20px;
+        font-weight: bolder;
+        cursor: pointer;
+        transition: color .3s;
+    }
+
+    .tip{
+        position: absolute;
+        display: block;
+        top: -100px;
+        width: 500px;
+        height: 60px;
+        line-height: 60px;
+        text-align: center;
+        background: orangered;
+        font-weight: bolder;
+        text-align: center;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: tipMove 2s;
+        border-radius: 8px;
+        color: white;
+    }
+
+    @keyframes tipMove {
+        0%{
+            top: -100px;
+            display: block;
+        }
+
+        20%{
+            top: 30px;
+            display: block;
+        }
+
+        80%{
+            top: 30px;
+            display: block;
+        }
+
+        100%{
+            top: -100px;
+            display: none;
+        }
+    }
+</style>
+<body>
+    <div class="gamePage">
+        <div class="tip">欢迎来玩打字游戏！</div>
+        <div class="card">
+            <div>
+                <div class="title">分数</div>
+                <div class="records">0</div>
+            </div>
+            <div>
+                <div class="title">生命值</div>
+                <div class="lifes">100</div>
+            </div>
+        </div>
+        <div class="control">开始游戏</div>
+        <div class="difficult">难度选择</div>
+        <div class="difficultCard">
+            <div>一般</div>
+            <div>中等</div>
+            <div>困难</div>
+        </div>
+        <div class="deadline"></div>
+    </div>
+</body>
+<script>
+
+    //获取游戏界面元素
+    var gamePage = document.querySelector(".gamePage");
+
+    //设置字母数组
+    var words = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+
+    let speed = 4;
+    let numbers = 5;
+    var difficult = document.querySelector(".difficult");
+    var difficultCard = document.querySelector(".difficultCard");
+    let difficultFlag = true;
+    //难度的控制
+    function difficultCtrl() {
+        difficult.onclick = function () {
+            if (difficultFlag){
+                difficultCard.style.opacity = .9;
+                difficultFlag = !difficultFlag;
+            } else{
+                difficultCard.style.opacity = 0;
+                difficultFlag = !difficultFlag;
+            }
+        }
+    }
+
+
+    let diffcutes = [
+        {
+            numbers:4,
+            speed:5,
+            difContent:"一般"
+        },
+        {
+            numbers:6,
+            speed:10,
+            difContent:"中等"
+        },
+        {
+            numbers:8,
+            speed:10,
+            difContent:"困难"
+        }
+    ]
+
+
+    //获取提示
+    var tip = document.querySelector(".tip");
+
+    function setDifficult() {
+        var difs = document.querySelectorAll(".difficultCard div");
+        for (let i = 0; i < difs.length ; i++){
+            difs[i].onclick = function () {
+                speed = diffcutes[i].speed;
+                numbers = diffcutes[i].numbers;
+                tip.innerHTML = `你选择了【${diffcutes[i].difContent}】难度，点击开始进行游戏！`;
+                tip.style.display = "block";
+                difficultCard.style.opacity = 0;
+                difficultFlag = true;
+                gamePage.appendChild(document.getElementsByClassName("tip")[0]);
+            }
+        }
+    }
+
+
+    //产生字符
+    function yieldWords(numbers) {
+        for(let i = 0 ; i < numbers ; i++){
+            var word = document.createElement("span");
+            word.innerHTML = words[Math.ceil(Math.random()*25)];
+            word.style.cssText = `
+                position: absolute;
+                left: ${Math.ceil(Math.random()*1000)}px;
+                top:  ${Math.ceil(Math.random()*20)}px;
+                font-size: 20px;
+                font-weight: bold;
+                background:rgba(${Math.ceil(Math.random()*255)},${Math.ceil(Math.random()*255)},${Math.ceil(Math.random()*255)});
+                display:block;
+                width:50px;
+                height:50px;
+                text-align:center;
+                line-height:50px;
+                color:#fff;
+                border-radius:50%;
+                transition: opacity .5s;
+                `;
+            gamePage.appendChild(word);
+        }
+    }
+
+    let game = setInterval(function (speed = 5){
+        var spans = document.querySelectorAll(".gamePage span");
+        for(let i = 0; i < spans.length ; i++){
+            spans[i].style.top = spans[i].offsetTop+speed+"px";
+            //判断字母的高度是否大于400，大于400则删除该节点
+            if(spans[i].offsetTop > 500){
+                spans[i].style.opacity = 0;
+                //获取生命值节点
+                var lifes = document.querySelector(".lifes");
+                //生命小于90则挑战失败
+                if(parseInt(lifes.innerHTML)<40){
+                    alert("挑战失败！");
+                }
+                lifes.innerHTML = parseInt(lifes.innerHTML)-1;
+                gamePage.removeChild(spans[i]);
+                yieldWords(1);
+
+                break;
+            }
+        }
+    },30);
+
+    function startGame(){
+        difficultCard.style.opacity = 0;
+        //调用产生字母的函数
+        yieldWords(numbers);
+        game;
+    }
+
+    //点击清除字母
+    document.onkeydown = function (ev) {
+        var code  = String.fromCharCode(ev.keyCode);;
+        var spans = document.querySelectorAll(".gamePage span");
+        //如果字母与按键一样则删除，并重新生成一个，給分数+1
+        for(let i = 0; i < spans.length ; i++){
+            if(spans[i].innerHTML == code){
+                gamePage.removeChild(spans[i]);
+                //获取分数节点
+                var records = document.querySelector(".records");
+                records.innerHTML = parseInt(records.innerHTML)+1;
+                yieldWords(1);
+            }
+        }
+    }
+
+    //清除所有的字母
+    function clearWords() {
+        var spans = document.querySelectorAll(".gamePage span");
+        for(let i = 0; i < spans.length ; i++){
+            gamePage.removeChild(spans[i]);
+        }
+    }
+
+    var control = document.querySelector(".control");
+    let flag = true;
+    control.onclick = function () {
+        difficultFlag = true;
+        if (flag){
+            control.innerHTML = "结束游戏";
+            difficult.style.display = "none";
+            game = setInterval(function (speed){
+                var spans = document.querySelectorAll(".gamePage span");
+                for(let i = 0; i < spans.length ; i++){
+                    spans[i].style.top = spans[i].offsetTop+speed+"px";
+                    //判断字母的高度是否大于400，大于400则删除该节点
+                    if(spans[i].offsetTop > 450){
+                        spans[i].style.opacity = 0;
+                        //获取生命值节点
+                        var lifes = document.querySelector(".lifes");
+                        //生命小于90则挑战失败
+                        if(parseInt(lifes.innerHTML)<40){
+                            alert("挑战失败！");
+                        }
+                        lifes.innerHTML = parseInt(lifes.innerHTML)-1;
+                        gamePage.removeChild(spans[i]);
+                        yieldWords(1);
+
+                        break;
+                    }
+                }
+            },30);;
+            startGame();
+            //获取分数节点
+            var records = document.querySelector(".records");
+            records.innerHTML = 0;
+            //获取生命值节点
+            var lifes = document.querySelector(".lifes");
+            lifes.innerHTML = 100;
+            flag = !flag;
+        }else{
+            difficult.style.display = "block";
+            clearInterval(game);
+            control.innerHTML = "开始游戏";
+            clearWords();
+            flag = !flag;
+        }
+    }
+
+
+
+
+
+    difficultCtrl();
+    setDifficult();
+
+
+</script>
+</html>
